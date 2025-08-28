@@ -1,0 +1,65 @@
+FROM ubuntu:22.04
+
+LABEL maintainer="AIC Utils Environment"
+
+ARG WWWGROUP=1000
+
+WORKDIR /opt/utils
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Install system dependencies focused on utils/ansible needs
+RUN apt-get update \
+    && apt-get install -y \
+        curl \
+        wget \
+        git \
+        unzip \
+        zip \
+        ca-certificates \
+        gnupg \
+        software-properties-common \
+        openssh-client \
+        python3 \
+        python3-pip \
+        jq \
+        emacs \
+        awscli \
+        dnsutils \
+        netcat \
+        gosu \
+    && curl -sS https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | tee /etc/apt/keyrings/pgdg.gpg >/dev/null \
+    && echo "deb [signed-by=/etc/apt/keyrings/pgdg.gpg] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
+    && apt-get install -y postgresql-client-17 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Ansible
+RUN apt-add-repository ppa:ansible/ansible -y \
+    && apt-get update \
+    && apt-get install -y ansible \
+    && apt remove python3-openssl -y \
+    && apt autoremove -y
+
+# Install Python packages for Ansible/AWS
+RUN pip3 install \
+    boto3 \
+    markupsafe==2.0.1 \
+    requests_aws4auth
+
+# Set up the sail user
+RUN groupadd --force -g $WWWGROUP sail
+RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
+
+# Copy and setup the utils environment script
+COPY setup.utils.sh /usr/local/bin/setup.utils.sh
+RUN chmod +x /usr/local/bin/setup.utils.sh
+
+# Set the working directory to where utils will be mounted
+WORKDIR /opt/utils
+
+ENTRYPOINT ["setup.utils.sh"]
