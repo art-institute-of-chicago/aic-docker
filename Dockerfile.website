@@ -1,11 +1,11 @@
-# Start with the exact same base as Sail
+# Single stage build based on Ubuntu
 FROM ubuntu:22.04
 
 LABEL maintainer="Taylor Otwell"
 
 ARG WWWGROUP=1000
 ARG NODE_VERSION=18
-ARG POSTGRES_VERSION=15
+ARG POSTGRES_VERSION=16
 
 WORKDIR /var/www/html
 
@@ -44,6 +44,18 @@ RUN apt-get update \
     && apt-get install -y yarn \
     && apt-get install -y mysql-client \
     && apt-get install -y postgresql-client-$POSTGRES_VERSION \
+    # Install PostgreSQL server temporarily to get development headers for pgvector
+    && apt-get install -y postgresql-$POSTGRES_VERSION postgresql-server-dev-$POSTGRES_VERSION build-essential \
+    # Install pgvector
+    && cd /tmp \
+    && git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git \
+    && cd pgvector \
+    && make USE_PGXS=1 PG_CONFIG=/usr/lib/postgresql/$POSTGRES_VERSION/bin/pg_config \
+    && make install USE_PGXS=1 PG_CONFIG=/usr/lib/postgresql/$POSTGRES_VERSION/bin/pg_config \
+    && cd / \
+    && rm -rf /tmp/pgvector \
+    # Clean up PostgreSQL server (keep client tools)
+    && apt-get remove -y postgresql-$POSTGRES_VERSION postgresql-server-dev-$POSTGRES_VERSION build-essential \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -78,25 +90,6 @@ stderr_logfile_maxbytes=0
 autostart=true
 autorestart=true
 SUPERVISOR_EOF
-
-FROM postgres:17
-
-RUN apt-get update \
-    && apt-get install -y \
-        build-essential \
-        git \
-        postgresql-server-dev-17 \
-    && cd /tmp \
-    && git clone --branch v0.5.1 https://github.com/pgvector/pgvector.git \
-    && cd pgvector \
-    && make USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config \
-    && make install USE_PGXS=1 PG_CONFIG=/usr/bin/pg_config \
-    && cd / \
-    && rm -rf /tmp/pgvector \
-    && apt-get remove -y build-essential git postgresql-server-dev-17 \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
 
 COPY setup.website.sh /usr/local/bin/setup.website.sh
 RUN chmod +x /usr/local/bin/setup.website.sh

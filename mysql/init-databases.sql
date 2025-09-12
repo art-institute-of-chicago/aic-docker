@@ -1,5 +1,5 @@
-CREATE DATABASE "data-aggregator";
-CREATE DATABASE "data-enhancer";
-
-GRANT ALL PRIVILEGES ON DATABASE "data-aggregator" TO sail;
-GRANT ALL PRIVILEGES ON DATABASE "data-enhancer" TO sail;
+CREATE DATABASE IF NOT EXISTS `data-aggregator`;
+GRANT ALL PRIVILEGES ON `data-aggregator`.* TO '${DA_DB_USERNAME}'@'%';
+GRANT ALL PRIVILEGES ON `data-enhancer`.* TO '${DA_DB_USERNAME}'@'%';
+GRANT ALL PRIVILEGES ON `aic`.* TO '${DA_DB_USERNAME}'@'%';
+FLUSH PRIVILEGES;
