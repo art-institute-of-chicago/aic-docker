@@ -69,6 +69,12 @@ RUN sed -i 's/listen = \/run\/php\/php8.4-fpm.sock/listen = 0.0.0.0:9000/' /etc/
 RUN sed -i 's/user = www-data/user = sail/' /etc/php/8.4/fpm/pool.d/www.conf
 RUN sed -i 's/group = www-data/group = sail/' /etc/php/8.4/fpm/pool.d/www.conf
 
+RUN echo "memory_limit = 512M" >> /etc/php/8.4/fpm/php.ini
+RUN echo "max_execution_time = 300" >> /etc/php/8.4/fpm/php.ini
+RUN echo "upload_max_filesize = 100M" >> /etc/php/8.4/fpm/php.ini
+RUN echo "post_max_size = 100M" >> /etc/php/8.4/fpm/php.ini
+RUN echo "max_file_uploads = 20" >> /etc/php/8.4/fpm/php.ini
+
 # Create PHP-FPM runtime directory
 RUN mkdir -p /run/php && chown -R sail:sail /run/php
 
