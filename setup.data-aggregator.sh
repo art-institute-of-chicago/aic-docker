@@ -21,16 +21,16 @@ echo "Adding database privileges..."
 echo "Database privileges added!"
 
 # Set proper ownership first (as root) - excluding .git directory
-find /var/www/data-aggregator/html -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-aggregator/html -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-aggregator -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
+find /var/www/data-aggregator -type d ! -name ".git" -exec chown sail:sail {} \;
 chown -R sail:sail /run/php
 
 # Fix specific Laravel directories that need write permissions
-chown -R sail:sail /var/www/data-aggregator/html/storage || true
-chown -R sail:sail /var/www/data-aggregator/html/bootstrap/cache || true
+chown -R sail:sail /var/www/data-aggregator/storage || true
+chown -R sail:sail /var/www/data-aggregator/bootstrap/cache || true
 
 # Change to the Laravel application directory
-cd /var/www/data-aggregator/html
+cd /var/www/data-aggregator
 
 # Install Composer dependencies if they don't exist
 if [ ! -d "vendor" ]; then

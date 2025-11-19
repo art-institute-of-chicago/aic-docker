@@ -27,7 +27,7 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_WEBSITE_PATH}:/var/www/website/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website'
     networks:
       - sail
     depends_on:
@@ -87,7 +87,7 @@ services:
       DB_USERNAME: '${DA_DB_USERNAME}'
       DB_PASSWORD: '${DA_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
     networks:
       - sail
@@ -171,8 +171,8 @@ services:
       - '80:80'
     volumes:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
-      - '${LOCAL_WEBSITE_PATH}:/var/www/website/html'
-      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
     networks:
       - sail
     depends_on:
