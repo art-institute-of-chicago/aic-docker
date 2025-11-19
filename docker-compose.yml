@@ -34,7 +34,6 @@ services:
       - mysql
       - pgsql
       - redis
-      - elasticsearch
 
   utils:
     build:
@@ -62,7 +61,6 @@ services:
       - mysql
       - pgsql
       - redis
-      - elasticsearch
     # Override the default command to keep container running
     command: tail -f /dev/null
 
@@ -96,7 +94,6 @@ services:
     depends_on:
       - mysql
       - redis
-      - elasticsearch
 
   mysql:
     image: 'mysql/mysql-server:8.0'
@@ -168,38 +165,6 @@ services:
       retries: 3
       timeout: 5s
 
-  elasticsearch:
-    image: 'elasticsearch:8.17.10'
-    ports:
-      - '9200:9200'
-      - '9300:9300'
-    environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "xpack.security.enabled=false"
-      - "xpack.security.enrollment.enabled=false"
-      - "network.host=0.0.0.0"
-      - "http.host=0.0.0.0"
-      - "transport.host=0.0.0.0"
-      - "cluster.routing.allocation.disk.threshold_enabled=false"
-      - "bootstrap.memory_lock=true"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - 'sail-elasticsearch:/usr/share/elasticsearch/data'
-    networks:
-      - sail
-    healthcheck:
-      test:
-        - CMD-SHELL
-        - "curl -f http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=30s || exit 1"
-      interval: 30s
-      retries: 5
-      timeout: 30s
-      start_period: 60s
-
   nginx:
     image: 'nginx:alpine'
     ports:
@@ -227,6 +192,4 @@ volumes:
   sail-pgsql:
     driver: local
   sail-redis:
-    driver: local
-  sail-elasticsearch:
     driver: local

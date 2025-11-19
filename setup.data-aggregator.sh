@@ -20,35 +20,6 @@ echo "Adding database privileges..."
   "
 echo "Database privileges added!"
 
-# Wait for Elasticsearch with better error handling and timeout
-echo "Waiting for Elasticsearch to be ready..."
-ELASTICSEARCH_HOST="elasticsearch:9200"
-MAX_RETRIES=30
-RETRY_COUNT=0
-
-until curl -s --max-time 10 "http://${ELASTICSEARCH_HOST}/_cluster/health?wait_for_status=yellow&timeout=10s" > /dev/null; do
-    RETRY_COUNT=$((RETRY_COUNT + 1))
-    if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-        echo "ERROR: Elasticsearch failed to start after ${MAX_RETRIES} attempts"
-        echo "Checking Elasticsearch logs..."
-        curl -v "http://${ELASTICSEARCH_HOST}/" || true
-        exit 1
-    fi
-    echo "Waiting for Elasticsearch... (attempt ${RETRY_COUNT}/${MAX_RETRIES})"
-    sleep 5
-done
-
-echo "Elasticsearch is ready!"
-
-# Test Elasticsearch connection
-echo "Testing Elasticsearch connection..."
-if ! curl -s -f "http://${ELASTICSEARCH_HOST}/" > /dev/null; then
-    echo "ERROR: Cannot connect to Elasticsearch"
-    exit 1
-fi
-
-echo "Elasticsearch connection verified successfully!"
-
 # Set proper ownership first (as root) - excluding .git directory
 find /var/www/data-aggregator/html -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
 find /var/www/data-aggregator/html -type d ! -name ".git" -exec chown sail:sail {} \;
@@ -90,28 +61,6 @@ if [ -d "$DUMPS_DIR" ]; then
     fi
 else
     echo "Dumps directory not found"
-fi
-
-# Clear any existing search indexes first
-echo "Clearing existing Elasticsearch indexes..."
-gosu sail php artisan scout:flush --all || true
-
-# Set up Elasticsearch indexes with error handling
-echo "Setting up Elasticsearch indexes..."
-if ! gosu sail php artisan search:install; then
-    echo "ERROR: Failed to install search indexes"
-    echo "Checking Elasticsearch status..."
-    curl -s "http://${ELASTICSEARCH_HOST}/_cat/health?v" || true
-    exit 1
-fi
-
-# Import all data into search indexes
-echo "Importing data into Elasticsearch..."
-if ! gosu sail php artisan scout:import-all; then
-    echo "ERROR: Failed to import data into Elasticsearch"
-    echo "Checking existing indexes..."
-    curl -s "http://${ELASTICSEARCH_HOST}/_cat/indices?v" || true
-    exit 1
 fi
 
 echo "Verifying Elasticsearch indexes..."
