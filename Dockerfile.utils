@@ -62,6 +62,9 @@ RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
 COPY setup.utils.sh /usr/local/bin/setup.utils.sh
 RUN chmod +x /usr/local/bin/setup.utils.sh
 
+# Install emacs for the old guys
+RUN apt-get update && apt-get install -y emacs
+
 # Set the working directory to where utils will be mounted
 WORKDIR /opt/utils
 
