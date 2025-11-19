@@ -1,5 +1,5 @@
 services:
-  aic:
+  website:
     build:
       context: .
       dockerfile: Dockerfile.website
@@ -27,7 +27,7 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_WEBSITE_PATH}:/var/www/aic/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website/html'
     networks:
       - sail
     depends_on:
@@ -171,12 +171,12 @@ services:
       - '80:80'
     volumes:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
-      - '${LOCAL_WEBSITE_PATH}:/var/www/aic/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website/html'
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
     networks:
       - sail
     depends_on:
-      aic:
+      website:
         condition: service_started
       data-aggregator:
         condition: service_started
