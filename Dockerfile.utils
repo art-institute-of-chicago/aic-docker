@@ -4,7 +4,7 @@ LABEL maintainer="AIC Utils Environment"
 
 ARG WWWGROUP=1000
 
-WORKDIR /opt/utils
+WORKDIR /var/opt/utils
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
@@ -66,6 +66,6 @@ RUN chmod +x /usr/local/bin/setup.utils.sh
 RUN apt-get update && apt-get install -y emacs
 
 # Set the working directory to where utils will be mounted
-WORKDIR /opt/utils
+WORKDIR /var/opt/utils
 
 ENTRYPOINT ["setup.utils.sh"]

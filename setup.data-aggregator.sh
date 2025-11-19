@@ -45,7 +45,7 @@ if [ ! -f ".env" ] || ! grep -q "APP_KEY=base64:" .env; then
 fi
 
 # Import database dump if available
-DUMPS_DIR="/var/utils/dumps"
+DUMPS_DIR="/var/opt/dumps"
 if [ -d "$DUMPS_DIR" ]; then
     # Find the latest data_aggregator dump file
     LATEST_DUMP=$(find "$DUMPS_DIR" -name "data_aggregator*.sql" -type f -printf "%T@ %p\n" 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2-)

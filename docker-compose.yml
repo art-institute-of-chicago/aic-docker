@@ -53,8 +53,8 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_UTILS_PATH}:/var/utils/utils'
-      - '${LOCAL_DOCKER_PATH}/after_files:/var/utils/after_files'  # Mount credentials
+      - '${LOCAL_UTILS_PATH}:/var/opt/utils'
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files'  # Mount credentials
     networks:
       - sail
     depends_on:
@@ -88,7 +88,7 @@ services:
       DB_PASSWORD: '${DA_DB_PASSWORD}'
     volumes:
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
-      - '${LOCAL_UTILS_PATH}/dumps:/var/utils/dumps'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
     networks:
       - sail
     depends_on:

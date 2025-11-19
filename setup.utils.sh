@@ -5,12 +5,12 @@ if [ ! -z "$WWWUSER" ]; then
 fi
 
 # Setup utils environment if credentials are available
-if [ -d "/var/utils/after_files" ] && [ "$(ls -A /var/utils/after_files 2>/dev/null)" ]; then
+if [ -d "/var/opt/after_files" ] && [ "$(ls -A /var/opt/after_files 2>/dev/null)" ]; then
     echo "Setting up utils environment..."
 
     SAIL_USER='sail'
     SAIL_HOME="/home/${SAIL_USER}"
-    DIR_FILES='/var/utils/after_files'
+    DIR_FILES='/var/opt/after_files'
 
     # Ensure all files exist
     REQUIRED_FILES=('credentials' 'aic-aws.pem' 'github')
@@ -110,12 +110,12 @@ else
 fi
 
 # Set proper ownership of the working directory (skip git directories to avoid permission issues)
-find /opt/utils -type f ! -path '*/.git/*' -exec chown sail:sail {} \; 2>/dev/null || true
-find /opt/utils -type d ! -path '*/.git*' -exec chown sail:sail {} \; 2>/dev/null || true
+find /var/opt/utils -type f ! -path '*/.git/*' -exec chown sail:sail {} \; 2>/dev/null || true
+find /var/opt/utils -type d ! -path '*/.git*' -exec chown sail:sail {} \; 2>/dev/null || true
 
 if [ $# -gt 0 ]; then
     exec gosu sail "$@"
 else
     # Keep the container running and switch to sail user for interactive use
-    exec gosu sail bash -c "cd /opt/utils && exec bash"
+    exec gosu sail bash -c "cd /var/opt/utils && exec bash"
 fi
