@@ -27,7 +27,7 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '~/Code/aic:/var/www/aic/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/aic/html'
     networks:
       - sail
     depends_on:
@@ -53,8 +53,8 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '~/Code/utils:/var/utils/utils'
-      - '~/docker/after_files:/var/utils/after_files'  # Mount credentials
+      - '${LOCAL_UTILS_PATH}:/var/utils/utils'
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/utils/after_files'  # Mount credentials
     networks:
       - sail
     depends_on:
@@ -87,8 +87,8 @@ services:
       DB_USERNAME: '${DA_DB_USERNAME}'
       DB_PASSWORD: '${DA_DB_PASSWORD}'
     volumes:
-      - '~/Code/data-aggregator:/var/www/data-aggregator/html'
-      - '~/Code/utils/dumps:/var/utils/dumps'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/utils/dumps'
     networks:
       - sail
     depends_on:
@@ -109,7 +109,7 @@ services:
       MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS}'
     volumes:
       - 'sail-mysql:/var/lib/mysql'
-      - '~/Code/aic/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+      - '${LOCAL_WEBSITE_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
       - './mysql/init-databases.sql:/docker-entrypoint-initdb.d/20-init-databases.sql'
     networks:
       - sail
@@ -133,7 +133,7 @@ services:
       POSTGRES_PASSWORD: '${WEB_DB_PASSWORD:-secret}'
     volumes:
       - 'sail-pgsql:/var/lib/postgresql/data'
-      - '~/Code/aic/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+      - '${LOCAL_WEBSITE_PATH}/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
       - './pgsql/init-databases.sh:/docker-entrypoint-initdb.d/20-init-databases.sh'
     networks:
       - sail
@@ -171,8 +171,8 @@ services:
       - '80:80'
     volumes:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
-      - '~/Code/aic:/var/www/aic/html'
-      - '~/Code/data-aggregator:/var/www/data-aggregator/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/aic/html'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
     networks:
       - sail
     depends_on:
