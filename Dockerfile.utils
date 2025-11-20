@@ -63,7 +63,7 @@ COPY setup.utils.sh /usr/local/bin/setup.utils.sh
 RUN chmod +x /usr/local/bin/setup.utils.sh
 
 # Install emacs for the old guys
-RUN apt-get update && apt-get install -y emacs sudo
+RUN apt-get update && apt-get install -y emacs sudo time
 
 # Set the working directory to where utils will be mounted
 WORKDIR /var/opt/utils
