@@ -1,5 +1,5 @@
 services:
-  aic:
+  website:
     build:
       context: .
       dockerfile: Dockerfile.website
@@ -27,7 +27,7 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_WEBSITE_PATH}:/var/www/aic/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website'
     networks:
       - sail
     depends_on:
@@ -53,8 +53,8 @@ services:
       DB_USERNAME: '${WEB_DB_USERNAME}'
       DB_PASSWORD: '${WEB_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_UTILS_PATH}:/var/utils/utils'
-      - '${LOCAL_DOCKER_PATH}/after_files:/var/utils/after_files'  # Mount credentials
+      - '${LOCAL_UTILS_PATH}:/var/opt/utils'
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files'  # Mount credentials
     networks:
       - sail
     depends_on:
@@ -87,8 +87,8 @@ services:
       DB_USERNAME: '${DA_DB_USERNAME}'
       DB_PASSWORD: '${DA_DB_PASSWORD}'
     volumes:
-      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
-      - '${LOCAL_UTILS_PATH}/dumps:/var/utils/dumps'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
     networks:
       - sail
     depends_on:
@@ -171,12 +171,12 @@ services:
       - '80:80'
     volumes:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
-      - '${LOCAL_WEBSITE_PATH}:/var/www/aic/html'
-      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator/html'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
     networks:
       - sail
     depends_on:
-      aic:
+      website:
         condition: service_started
       data-aggregator:
         condition: service_started

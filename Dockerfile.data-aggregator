@@ -76,7 +76,7 @@ autorestart=true
 
 [program:laravel-server]
 command=php artisan serve --host=0.0.0.0 --port=80
-directory=/var/www/data-aggregator/html
+directory=/var/www/data-aggregator
 user=sail
 stdout_logfile=/dev/stdout
 stdout_logfile_maxbytes=0

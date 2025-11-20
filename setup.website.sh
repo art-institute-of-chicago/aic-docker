@@ -16,9 +16,9 @@ fi
 chmod -R ugo+rw /.composer
 
 # Setup utils environment if credentials are available
-if [ -d "/var/utils/after_files" ] && [ "$(ls -A /var/utils/after_files 2>/dev/null)" ]; then
+if [ -d "/var/opt/after_files" ] && [ "$(ls -A /var/opt/after_files 2>/dev/null)" ]; then
     echo "Setting up utils environment..."
-    UTILS_SETUP_SCRIPT="/var/utils/utils/docker/setup.sh"
+    UTILS_SETUP_SCRIPT="/var/opt/utils/docker/setup.sh"
     if [ -f "$UTILS_SETUP_SCRIPT" ]; then
         # Fix permissions and line endings if needed
         chmod +x "$UTILS_SETUP_SCRIPT"
@@ -33,10 +33,10 @@ if [ -d "/var/utils/after_files" ] && [ "$(ls -A /var/utils/after_files 2>/dev/n
         fi
     else
         echo "Warning: Utils setup script not found at $UTILS_SETUP_SCRIPT"
-        echo "Expected location: /var/utils/utils/docker/setup.sh"
+        echo "Expected location: /var/opt/utils/docker/setup.sh"
     fi
 else
-    echo "No credential files found in /var/utils/after_files, skipping utils setup"
+    echo "No credential files found in /var/opt/after_files, skipping utils setup"
 fi
 
 # Ensure PHP-FPM runtime directory exists
