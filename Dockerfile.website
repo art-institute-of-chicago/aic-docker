@@ -101,7 +101,7 @@ COPY setup.website.sh /usr/local/bin/setup.website.sh
 RUN chmod +x /usr/local/bin/setup.website.sh
 
 # Install emacs for the old guys
-RUN apt-get update && apt-get install -y emacs
+RUN apt-get update && apt-get install -y emacs sudo
 
 EXPOSE 9000
 
