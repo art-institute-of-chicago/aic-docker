@@ -1,7 +1,9 @@
 CREATE DATABASE IF NOT EXISTS `data-aggregator`;
 CREATE DATABASE IF NOT EXISTS `data-enhancer`;
+CREATE DATABASE IF NOT EXISTS `data-service-assets`;
 CREATE DATABASE IF NOT EXISTS `testing`;
 GRANT ALL PRIVILEGES ON `data-aggregator`.* TO '${DA_DB_USERNAME}'@'%';
 GRANT ALL PRIVILEGES ON `data-enhancer`.* TO '${DA_DB_USERNAME}'@'%';
+GRANT ALL PRIVILEGES ON `data-service-assets`.* TO '${DA_DB_USERNAME}'@'%';
 GRANT ALL PRIVILEGES ON `testing`.* TO '${DA_DB_USERNAME}'@'%';
 FLUSH PRIVILEGES;
