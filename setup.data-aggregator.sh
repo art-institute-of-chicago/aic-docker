@@ -63,8 +63,8 @@ else
     echo "Dumps directory not found"
 fi
 
-echo "Verifying Elasticsearch indexes..."
-curl -s "http://${ELASTICSEARCH_HOST}/_cat/indices?v"
+# echo "Verifying Elasticsearch indexes..."
+# curl -s "http://${ELASTICSEARCH_HOST}/_cat/indices?v"
 
 echo "Data Aggregator setup complete!"
 
