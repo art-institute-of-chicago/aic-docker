@@ -95,6 +95,36 @@ services:
       - mysql
       - redis
 
+  data-service-assets:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-service-assets
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-service-assets/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9005:9005'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DS_ASSETS_DB_CONNECTION}'
+      DB_HOST: '${DS_ASSETS_DB_HOST}'
+      DB_PORT: '${DS_ASSETS_DB_PORT}'
+      DB_DATABASE: '${DS_ASSETS_DB_DATABASE}'
+      DB_USERNAME: '${DS_ASSETS_DB_USERNAME}'
+      DB_PASSWORD: '${DS_ASSETS_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+
   mysql:
     image: 'mysql/mysql-server:8.0'
     ports:
@@ -109,7 +139,8 @@ services:
       MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS}'
     volumes:
       - 'sail-mysql:/var/lib/mysql'
-      - '${LOCAL_WEBSITE_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+      - '${LOCAL_DATA_SERVICE_ASSETS_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
       - './mysql/init-databases.sql:/docker-entrypoint-initdb.d/20-init-databases.sql'
     networks:
       - sail
@@ -173,12 +204,15 @@ services:
       - './nginx/nginx.conf:/etc/nginx/nginx.conf'
       - '${LOCAL_WEBSITE_PATH}:/var/www/website'
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
+      - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
     networks:
       - sail
     depends_on:
       website:
         condition: service_started
       data-aggregator:
+        condition: service_started
+      data-service-assets:
         condition: service_started
     restart: unless-stopped
 
