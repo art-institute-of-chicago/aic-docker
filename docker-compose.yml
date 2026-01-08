@@ -125,6 +125,36 @@ services:
     depends_on:
       - mysql
 
+  data-enhancer:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-enhancer
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-enhancer/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9006:9006'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DATA_ENHANCER_DB_CONNECTION}'
+      DB_HOST: '${DATA_ENHANCER_DB_HOST}'
+      DB_PORT: '${DATA_ENHANCER_DB_PORT}'
+      DB_DATABASE: '${DATA_ENHANCER_DB_DATABASE}'
+      DB_USERNAME: '${DATA_ENHANCER_DB_USERNAME}'
+      DB_PASSWORD: '${DATA_ENHANCER_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+      - redis
+
   mysql:
     image: 'mysql/mysql-server:8.0'
     ports:
@@ -140,7 +170,6 @@ services:
     volumes:
       - 'sail-mysql:/var/lib/mysql'
       - '${LOCAL_DATA_AGGREGATOR_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
-      - '${LOCAL_DATA_SERVICE_ASSETS_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
       - './mysql/init-databases.sql:/docker-entrypoint-initdb.d/20-init-databases.sql'
     networks:
       - sail
@@ -205,6 +234,7 @@ services:
       - '${LOCAL_WEBSITE_PATH}:/var/www/website'
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
+      - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
     networks:
       - sail
     depends_on:
