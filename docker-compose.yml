@@ -193,7 +193,6 @@ services:
       POSTGRES_PASSWORD: '${WEB_DB_PASSWORD:-secret}'
     volumes:
       - 'sail-pgsql:/var/lib/postgresql/data'
-      - '${LOCAL_WEBSITE_PATH}/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
       - './pgsql/init-databases.sh:/docker-entrypoint-initdb.d/20-init-databases.sh'
     networks:
       - sail
