@@ -1,0 +1,259 @@
+services:
+  website:
+    build:
+      context: .
+      dockerfile: Dockerfile.website
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-phpfpm/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+      - '9003:9003'
+    expose:
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}'
+      SUPERVISOR_PHP_USER: sail
+      DB_CONNECTION: '${WEB_DB_CONNECTION}'
+      DB_HOST: '${WEB_DB_HOST}'
+      DB_PORT: '${WEB_DB_PORT}'
+      DB_DATABASE: '${WEB_DB_DATABASE}'
+      DB_USERNAME: '${WEB_DB_USERNAME}'
+      DB_PASSWORD: '${WEB_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+      - pgsql
+      - redis
+
+  utils:
+    build:
+      context: .
+      dockerfile: Dockerfile.utils
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-utils/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${WEB_DB_CONNECTION}'
+      DB_HOST: '${WEB_DB_HOST}'
+      DB_PORT: '${WEB_DB_PORT}'
+      DB_DATABASE: '${WEB_DB_DATABASE}'
+      DB_USERNAME: '${WEB_DB_USERNAME}'
+      DB_PASSWORD: '${WEB_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_UTILS_PATH}:/var/opt/utils'
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files'  # Mount credentials
+    networks:
+      - sail
+    depends_on:
+      - mysql
+      - pgsql
+      - redis
+    # Override the default command to keep container running
+    command: tail -f /dev/null
+
+  data-aggregator:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-aggregator
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-aggregator/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9004:9004'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DA_DB_CONNECTION}'
+      DB_HOST: '${DA_DB_HOST}'
+      DB_PORT: '${DA_DB_PORT}'
+      DB_DATABASE: '${DA_DB_DATABASE}'
+      DB_USERNAME: '${DA_DB_USERNAME}'
+      DB_PASSWORD: '${DA_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+      - redis
+
+  data-service-assets:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-service-assets
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-service-assets/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9005:9005'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DS_ASSETS_DB_CONNECTION}'
+      DB_HOST: '${DS_ASSETS_DB_HOST}'
+      DB_PORT: '${DS_ASSETS_DB_PORT}'
+      DB_DATABASE: '${DS_ASSETS_DB_DATABASE}'
+      DB_USERNAME: '${DS_ASSETS_DB_USERNAME}'
+      DB_PASSWORD: '${DS_ASSETS_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+
+  data-enhancer:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-enhancer
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-enhancer/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9006:9006'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DATA_ENHANCER_DB_CONNECTION}'
+      DB_HOST: '${DATA_ENHANCER_DB_HOST}'
+      DB_PORT: '${DATA_ENHANCER_DB_PORT}'
+      DB_DATABASE: '${DATA_ENHANCER_DB_DATABASE}'
+      DB_USERNAME: '${DATA_ENHANCER_DB_USERNAME}'
+      DB_PASSWORD: '${DATA_ENHANCER_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: 'mysql/mysql-server:8.0'
+    ports:
+      - '${FORWARD_DB_PORT:-3306}:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: '${DA_DB_DATABASE}'
+      MYSQL_USER: '${DA_DB_USERNAME}'
+      MYSQL_PASSWORD: '${DA_DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_EXTRA_OPTIONS: '${MYSQL_EXTRA_OPTIONS}'
+    volumes:
+      - 'sail-mysql:/var/lib/mysql'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}/vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+      - './mysql/init-databases.sql:/docker-entrypoint-initdb.d/20-init-databases.sql'
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - '-p${DA_DB_PASSWORD}'
+      retries: 3
+      timeout: 5s
+
+  pgsql:
+    image: 'pgvector/pgvector:pg16-trixie'
+    ports:
+      - '54320:5432'
+    environment:
+      PGPASSWORD: '${WEB_DB_PASSWORD:-secret}'
+      POSTGRES_DB: '${WEB_DB_DATABASE}'
+      POSTGRES_USER: '${WEB_DB_USERNAME}'
+      POSTGRES_PASSWORD: '${WEB_DB_PASSWORD:-secret}'
+    volumes:
+      - 'sail-pgsql:/var/lib/postgresql/data'
+      - '${LOCAL_WEBSITE_PATH}/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+      - './pgsql/init-databases.sh:/docker-entrypoint-initdb.d/20-init-databases.sh'
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - '-q'
+        - '-d'
+        - '${WEB_DB_DATABASE}'
+        - '-U'
+        - '${WEB_DB_USERNAME}'
+      retries: 3
+      timeout: 5s
+
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'sail-redis:/data'
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+  nginx:
+    image: 'nginx:alpine'
+    ports:
+      - '80:80'
+    volumes:
+      - './nginx/nginx.conf:/etc/nginx/nginx.conf'
+      - '${LOCAL_WEBSITE_PATH}:/var/www/website'
+      - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
+      - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
+      - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
+    networks:
+      - sail
+    depends_on:
+      website:
+        condition: service_started
+      data-aggregator:
+        condition: service_started
+      data-service-assets:
+        condition: service_started
+    restart: unless-stopped
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  sail-mysql:
+    driver: local
+  sail-pgsql:
+    driver: local
+  sail-redis:
+    driver: local
