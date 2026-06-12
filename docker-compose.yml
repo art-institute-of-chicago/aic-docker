@@ -125,6 +125,31 @@ services:
     depends_on:
       - mysql
 
+  data-service-styles:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-service-styles
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-service-styles/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9007:9007'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DS_STYLES_DB_CONNECTION}'
+      DB_DATABASE: '${DS_STYLES_DB_DATABASE}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_STYLES_PATH}:/var/www/data-service-styles'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+      - './sqlite/init-databases.sh:/usr/local/bin/sqlite-init-databases.sh'
+    networks:
+      - sail
+
   data-enhancer:
     build:
       context: .
@@ -193,7 +218,6 @@ services:
       POSTGRES_PASSWORD: '${WEB_DB_PASSWORD:-secret}'
     volumes:
       - 'sail-pgsql:/var/lib/postgresql/data'
-      - '${LOCAL_WEBSITE_PATH}/vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
       - './pgsql/init-databases.sh:/docker-entrypoint-initdb.d/20-init-databases.sh'
     networks:
       - sail
@@ -234,6 +258,7 @@ services:
       - '${LOCAL_WEBSITE_PATH}:/var/www/website'
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
+      - '${LOCAL_DATA_SERVICE_STYLES_PATH}:/var/www/data-service-styles'
       - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
     networks:
       - sail
@@ -243,6 +268,8 @@ services:
       data-aggregator:
         condition: service_started
       data-service-assets:
+        condition: service_started
+      data-service-styles:
         condition: service_started
     restart: unless-stopped
 
