@@ -5,10 +5,10 @@ set -e
 echo "Setting up Data Service Styles environment..."
 
 # Initialize SQLite database file
-if [ ! -f "database/database.sqlite" ]; then
+if [ ! -f "storage/app/database.sqlite" ]; then
     echo "Initializing SQLite database..."
-    touch database/database.sqlite
-    chown sail:sail database/database.sqlite
+    touch storage/app/database.sqlite
+    chown sail:sail storage/app/database.sqlite
 fi
 
 # Set proper ownership first (as root) - excluding .git directory
@@ -38,6 +38,10 @@ fi
 # Run migrations
 echo "Running database migrations..."
 gosu sail php artisan migrate --force
+
+# Symlink storage
+echo "Symlinking public storage..."
+gosu sail php artisan storage:link
 
 # Import database dump if available
 # DUMPS_DIR="/var/opt/dumps"
