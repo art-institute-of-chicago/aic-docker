@@ -180,6 +180,27 @@ services:
       - mysql
       - redis
 
+  journeymaker-client:
+    build:
+      context: .
+      dockerfile: Dockerfile.journeymaker-client
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-journeymaker-client/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9008:9008'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+    volumes:
+      - '${LOCAL_JOURNEYMAKER_CLIENT_PATH}:/var/www/journeymaker-client'
+    networks:
+      - sail
+
   mysql:
     image: 'mysql/mysql-server:8.0'
     ports:
@@ -259,6 +280,7 @@ services:
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
       - '${LOCAL_DATA_SERVICE_STYLES_PATH}:/var/www/data-service-styles'
+      - '${LOCAL_JOURNEYMAKER_CLIENT_PATH}:/var/www/journeymaker-client'
       - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
     networks:
       - sail
@@ -270,6 +292,8 @@ services:
       data-service-assets:
         condition: service_started
       data-service-styles:
+        condition: service_started
+      journeymaker-client:
         condition: service_started
     restart: unless-stopped
 
