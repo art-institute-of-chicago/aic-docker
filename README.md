@@ -23,7 +23,7 @@ git clone git@github.com:art-institute-of-chicago/aic-docker.git
 cd aic-docker
 ```
 
-In `docker-compose.yml` remove the blocks of containers you don't need (utils, data-enhancer, etc.) to prevent the start up process from erroring out.
+Services use Docker Compose profiles — you choose which to run at startup time. No need to edit `docker-compose.yml`.
 
 2. Environment Configuration
 
@@ -45,41 +45,72 @@ To access your applications via custom domains rather than localhost, add the ne
 
 ```bash
 # Example for mapping local dev domains
-echo "127.0.0.1 www-dev.artic.edu api-dev.artic.edu" | sudo tee -a /etc/hosts
+echo "127.0.0.1 www-dev.artic.edu api-dev.artic.edu styles-data-dev.artic.edu archives-data-dev.artic.edu artist-enrichment-data-dev.artic.edu journeymaker-dev.artic.edu" | sudo tee -a /etc/hosts
 ```
 
-4. Helper Shortcuts (Optional)
+4. Service Management (compose.sh)
 
-To simplify managing multiple containers, you can add these aliases to your shell profile (~/.zshrc or ~/.bashrc):
+Use `compose.sh` to start, stop, and manage services via Docker Compose profiles.
 
 ```bash
-# Set this to your aic-docker directory
-export DOCKER_PROJECT_DIR="$HOME/path/to/aic-docker"
+# Interactive mode — select services from a menu
+./compose.sh
 
-# Start/Stop all services
-alias d-up="docker compose --project-directory $DOCKER_PROJECT_DIR up -d"
-alias d-down="docker compose --project-directory $DOCKER_PROJECT_DIR down"
+# Start specific services (infra: mysql, pgsql, redis, nginx always start)
+./compose.sh website data-aggregator
 
-# Execute commands in a specific service (e.g., d-run website php artisan migrate)
-function d-run() {
-    local service="$1"
-    shift
-    docker compose --project-directory "$DOCKER_PROJECT_DIR" exec "$service" "$@"
-}
+# Start everything
+./compose.sh --all
+
+# Rebuild then start
+./compose.sh --build website
+
+# Stop everything
+./compose.sh --down
+
+# Stop specific services
+./compose.sh --down website
+
+# List available services
+./compose.sh --list
 ```
+
+Available services:
+
+| Service | Description |
+|---|---|
+| `website` | Main website (Laravel) |
+| `utils` | Utility scripts + Ansible |
+| `data-aggregator` | Data aggregation pipeline |
+| `data-service-assets` | Assets microservice |
+| `data-service-styles` | Styles microservice |
+| `data-service-archives` | Archives microservice |
+| `data-enhancer` | Data enhancement service |
+| `journeymaker-client` | JourneyMaker frontend |
+| `data-service-artist-enrichment` | Artist enrichment service |
+
+Infrastructure services (`mysql`, `pgsql`, `redis`, `nginx`) start automatically with any profile.
 
 5. Building and Running
 
-You can build and start the entire stack or target a specific project.
-
-Build and Start Everything:
+Build and start the services you need:
 
 ```bash
-d-up --build
+# Interactive — pick from a menu
+./compose.sh
+
+# Specific services with rebuild
+./compose.sh --build website data-aggregator
+
+# Everything
+./compose.sh --all --build
 ```
-Build/Start a Single Project:
+
+To run commands inside a running container:
+
 ```bash
-docker compose up -d --build website
+docker compose exec website php artisan migrate
+docker compose exec data-aggregator bash
 ```
 
 6. Application Integration
@@ -93,17 +124,21 @@ After the containers are running, update the .env file inside your individual pr
   Maintenance: Run migrations or clear cache through the container:
 
 ```bash
-d-run website php artisan migrate
-d-run website php artisan cache:clear
+docker compose exec website php artisan migrate
+docker compose exec website php artisan cache:clear
 ```
 
 7. Useful Commands Reference
 | Action | Command |
 | --- | --- |
+| Start services (menu) | `./compose.sh` |
+| Start specific services | `./compose.sh website data-aggregator` |
+| Start all services | `./compose.sh --all` |
+| Stop all services | `./compose.sh --down` |
 | Check Logs | `docker compose logs -f [service_name]` |
-| Stop All Services | `docker stop $(docker ps -q)` |
-| Interactive Shell | `docker exec -it [container_name] /bin/bash` |
-| Full Reset | `docker compose down -v (Removes containers and volumes)` |
+| Interactive Shell | `docker compose exec [service_name] bash` |
+| Rebuild service | `./compose.sh --build website` |
+| Full Reset | `docker compose down -v` |
 
 ## Contributing
 
@@ -115,7 +150,7 @@ We welcome your contributions. Please fork this repository and make your changes
 git clone git@github.com:your-github-account/aic-docker.git
 
 # Enter the folder that was created by the clone
-cd website
+cd aic-docker
 
 # Install
 
