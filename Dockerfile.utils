@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-LABEL maintainer="AIC Utils Environment"
+LABEL maintainer="AIC"
 
 ARG WWWGROUP=1000
 

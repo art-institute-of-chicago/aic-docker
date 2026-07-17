@@ -1,0 +1,76 @@
+FROM ubuntu:22.04
+
+LABEL maintainer="AIC"
+
+ARG WWWGROUP=1000
+ARG PHP_VERSION=8.4
+
+WORKDIR /var/www/data-service-artist-enrichment
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update \
+    && apt-get install -y gnupg gosu curl ca-certificates zip unzip git software-properties-common python3-pip openssh-client \
+    && curl -sS 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c' | gpg --dearmor | tee /etc/apt/keyrings/ppa_ondrej_php.gpg > /dev/null \
+    && echo "deb [signed-by=/etc/apt/keyrings/ppa_ondrej_php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu jammy main" > /etc/apt/sources.list.d/ppa_ondrej_php.list \
+    && apt-get update \
+    && apt-get install -y php${PHP_VERSION}-cli php${PHP_VERSION}-dev \
+       php${PHP_VERSION}-fpm \
+       php${PHP_VERSION}-pgsql php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-gd \
+       php${PHP_VERSION}-curl php${PHP_VERSION}-mysql php${PHP_VERSION}-mbstring \
+       php${PHP_VERSION}-xml php${PHP_VERSION}-zip php${PHP_VERSION}-bcmath \
+       php${PHP_VERSION}-intl php${PHP_VERSION}-readline \
+       php${PHP_VERSION}-xdebug \
+    && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
+    && apt-get install -y supervisor emacs sudo time mysql-client postgresql-client \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN groupadd --force -g $WWWGROUP sail
+RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
+
+RUN echo "memory_limit = 512M" >> /etc/php/${PHP_VERSION}/cli/php.ini
+RUN echo "max_execution_time = 0" >> /etc/php/${PHP_VERSION}/cli/php.ini
+
+RUN sed -i "s/listen = \/run\/php\/php${PHP_VERSION}-fpm.sock/listen = 0.0.0.0:9000/" /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+RUN sed -i 's/user = www-data/user = sail/' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+RUN sed -i 's/group = www-data/group = sail/' /etc/php/${PHP_VERSION}/fpm/pool.d/www.conf
+RUN mkdir -p /run/php && chown -R sail:sail /run/php
+
+RUN cat > /etc/supervisor/conf.d/supervisord.conf << SUPERVISOR_EOF
+[supervisord]
+nodaemon=true
+user=root
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+
+[program:php-fpm]
+command=/usr/sbin/php-fpm${PHP_VERSION} -F
+user=root
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+autostart=true
+autorestart=true
+
+[program:laravel-server]
+command=php artisan serve --host=0.0.0.0 --port=80
+directory=/var/www/data-service-artist-enrichment
+user=sail
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+autostart=true
+autorestart=true
+SUPERVISOR_EOF
+
+COPY setup.data-service-artist-enrichment.sh /usr/local/bin/setup.sh
+RUN chmod +x /usr/local/bin/setup.sh
+
+WORKDIR /var/www/data-service-artist-enrichment
+ENTRYPOINT ["/usr/local/bin/setup.sh"]

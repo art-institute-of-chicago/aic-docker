@@ -1,7 +1,7 @@
 # Single stage build based on Ubuntu
 FROM ubuntu:22.04
 
-LABEL maintainer="Taylor Otwell"
+LABEL maintainer="AIC"
 
 ARG WWWGROUP=1000
 ARG NODE_VERSION=18

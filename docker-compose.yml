@@ -1,5 +1,7 @@
 services:
   website:
+    profiles:
+      - website
     build:
       context: .
       dockerfile: Dockerfile.website
@@ -36,6 +38,8 @@ services:
       - redis
 
   utils:
+    profiles:
+      - utils
     build:
       context: .
       dockerfile: Dockerfile.utils
@@ -65,6 +69,8 @@ services:
     command: tail -f /dev/null
 
   data-aggregator:
+    profiles:
+      - data-aggregator
     build:
       context: .
       dockerfile: Dockerfile.data-aggregator
@@ -96,6 +102,8 @@ services:
       - redis
 
   data-service-assets:
+    profiles:
+      - data-service-assets
     build:
       context: .
       dockerfile: Dockerfile.data-service-assets
@@ -126,6 +134,8 @@ services:
       - mysql
 
   data-service-styles:
+    profiles:
+      - data-service-styles
     build:
       context: .
       dockerfile: Dockerfile.data-service-styles
@@ -150,7 +160,41 @@ services:
     networks:
       - sail
 
+  data-service-archives:
+    profiles:
+      - data-service-archives
+    build:
+      context: .
+      dockerfile: Dockerfile.data-service-archives
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-service-archives/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9009:9007'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DS_ARCHIVES_DB_CONNECTION}'
+      DB_HOST: '${DS_ARCHIVES_DB_HOST}'
+      DB_PORT: '${DS_ARCHIVES_DB_PORT}'
+      DB_DATABASE: '${DS_ARCHIVES_DB_DATABASE}'
+      DB_USERNAME: '${DS_ARCHIVES_DB_USERNAME}'
+      DB_PASSWORD: '${DS_ARCHIVES_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_ARCHIVES_PATH}:/var/www/data-service-archives'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+    networks:
+      - sail
+    depends_on:
+      - pgsql
+
   data-enhancer:
+    profiles:
+      - data-enhancer
     build:
       context: .
       dockerfile: Dockerfile.data-enhancer
@@ -181,6 +225,8 @@ services:
       - redis
 
   journeymaker-client:
+    profiles:
+      - journeymaker-client
     build:
       context: .
       dockerfile: Dockerfile.journeymaker-client
@@ -254,6 +300,35 @@ services:
       retries: 3
       timeout: 5s
 
+  data-service-artist-enrichment:
+    profiles:
+      - data-service-artist-enrichment
+    build:
+      context: .
+      dockerfile: Dockerfile.data-service-artist-enrichment
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-service-artist-enrichment/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${DS_ARTIST_ENRICHMENT_DB_CONNECTION}'
+      DB_HOST: '${DS_ARTIST_ENRICHMENT_DB_HOST}'
+      DB_PORT: '${DS_ARTIST_ENRICHMENT_DB_PORT}'
+      DB_DATABASE: '${DS_ARTIST_ENRICHMENT_DB_DATABASE}'
+      DB_USERNAME: '${DS_ARTIST_ENRICHMENT_DB_USERNAME}'
+      DB_PASSWORD: '${DS_ARTIST_ENRICHMENT_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files'
+    networks:
+      - sail
+    depends_on:
+      - pgsql
+      - data-aggregator
+    command: tail -f /dev/null
+
   redis:
     image: 'redis:alpine'
     ports:
@@ -282,19 +357,10 @@ services:
       - '${LOCAL_DATA_SERVICE_STYLES_PATH}:/var/www/data-service-styles'
       - '${LOCAL_JOURNEYMAKER_CLIENT_PATH}:/var/www/journeymaker-client'
       - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
+      - '${LOCAL_DATA_SERVICE_ARCHIVES_PATH}:/var/www/data-service-archives'
+      - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
     networks:
       - sail
-    depends_on:
-      website:
-        condition: service_started
-      data-aggregator:
-        condition: service_started
-      data-service-assets:
-        condition: service_started
-      data-service-styles:
-        condition: service_started
-      journeymaker-client:
-        condition: service_started
     restart: unless-stopped
 
 networks:
