@@ -1,5 +1,7 @@
 services:
   website:
+    profiles:
+      - website
     build:
       context: .
       dockerfile: Dockerfile.website
@@ -36,6 +38,8 @@ services:
       - redis
 
   utils:
+    profiles:
+      - utils
     build:
       context: .
       dockerfile: Dockerfile.utils
@@ -65,6 +69,8 @@ services:
     command: tail -f /dev/null
 
   data-aggregator:
+    profiles:
+      - data-aggregator
     build:
       context: .
       dockerfile: Dockerfile.data-aggregator
@@ -96,6 +102,8 @@ services:
       - redis
 
   data-service-assets:
+    profiles:
+      - data-service-assets
     build:
       context: .
       dockerfile: Dockerfile.data-service-assets
@@ -126,6 +134,8 @@ services:
       - mysql
 
   data-service-styles:
+    profiles:
+      - data-service-styles
     build:
       context: .
       dockerfile: Dockerfile.data-service-styles
@@ -151,6 +161,8 @@ services:
       - sail
 
   data-service-archives:
+    profiles:
+      - data-service-archives
     build:
       context: .
       dockerfile: Dockerfile.data-service-archives
@@ -181,6 +193,8 @@ services:
       - pgsql
 
   data-enhancer:
+    profiles:
+      - data-enhancer
     build:
       context: .
       dockerfile: Dockerfile.data-enhancer
@@ -211,6 +225,8 @@ services:
       - redis
 
   journeymaker-client:
+    profiles:
+      - journeymaker-client
     build:
       context: .
       dockerfile: Dockerfile.journeymaker-client
@@ -285,6 +301,8 @@ services:
       timeout: 5s
 
   data-service-artist-enrichment:
+    profiles:
+      - data-service-artist-enrichment
     build:
       context: .
       dockerfile: Dockerfile.data-service-artist-enrichment
@@ -343,17 +361,6 @@ services:
       - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
     networks:
       - sail
-    depends_on:
-      website:
-        condition: service_started
-      data-aggregator:
-        condition: service_started
-      data-service-assets:
-        condition: service_started
-      data-service-styles:
-        condition: service_started
-      journeymaker-client:
-        condition: service_started
     restart: unless-stopped
 
 networks:
