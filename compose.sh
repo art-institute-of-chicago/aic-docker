@@ -39,7 +39,10 @@ build_profile_flags() {
 }
 
 run_compose() {
-  local down="$1"; local build="$2"; shift 2
+  local down="$1"
+  local build="$2"
+  local destroy="$3"
+  shift 3
   local profiles=("$@")
 
   if [[ ${#profiles[@]} -eq 0 ]]; then
@@ -49,7 +52,15 @@ run_compose() {
 
   cd "$SCRIPT_DIR"
 
-  if $down; then
+  if $destroy; then
+    echo "Destroying:"
+    echo "- containers, networks, and volumes"
+    docker compose $(build_profile_flags "${profiles[@]}") down --volumes --remove-orphans
+    echo "- images"
+    docker compose $(build_profile_flags "${profiles[@]}") down --rmi all
+    echo "- build cache"
+    docker system prune --all --volumes --force
+  elif $down; then
     echo "Stopping: ${profiles[*]}"
     docker compose $(build_profile_flags "${profiles[@]}") down
   else
@@ -66,6 +77,7 @@ run_compose() {
 interactive_menu() {
   local down="$1"
   local build="$2"
+  local destroy=false
 
   echo ""
   echo "  Select services to $( $down && echo "stop" || echo "start" ):"
@@ -98,7 +110,7 @@ interactive_menu() {
 
     # All
     if [[ "$input" =~ ^[aA]$ ]]; then
-      run_compose "$down" "$build" "${ALL_PROFILES[@]}"
+      run_compose "$down" "$build" "$destroy" "${ALL_PROFILES[@]}"
       return
     fi
 
@@ -136,14 +148,14 @@ interactive_menu() {
       continue
     fi
 
-    run_compose "$down" "$build" "${selected[@]}"
+    run_compose "$down" "$build" "$destroy" "${selected[@]}"
     return
   done
 }
 
 # ── CLI mode ─────────────────────────────────────────────────
 usage() {
-  echo "Usage: compose.sh [SERVICE...] [--all] [--build] [--down] [--list]"
+  echo "Usage: compose.sh [SERVICE...] [--all] [--build] [--down] [--destroy] [--list]"
   echo ""
   echo "  No args  → interactive prompt to select services"
   echo ""
@@ -151,6 +163,7 @@ usage() {
   echo "  --all     All services"
   echo "  --build   Rebuild images before starting"
   echo "  --down    Stop and remove (all or specified)"
+  echo "  --destroy Full reset"
   echo "  --list    List available services"
   echo "  -h,--help This help"
   echo ""
@@ -160,11 +173,13 @@ usage() {
   echo "  compose.sh --all"
   echo "  compose.sh --down"
   echo "  compose.sh --build website"
+  echo "  compose.sh --destroy"
 }
 
 # ── main ─────────────────────────────────────────────────────
 BUILD=false
 DOWN=false
+DESTROY=false
 ALL=false
 PROFILES=()
 
@@ -172,6 +187,7 @@ for arg in "$@"; do
   case "$arg" in
     --build) BUILD=true ;;
     --down)  DOWN=true ;;
+    --destroy) DESTROY=true; ALL=true ;;
     --all|-a) ALL=true ;;
     -h|--help) usage; exit 0 ;;
     --list|-l|--ls)
@@ -198,11 +214,20 @@ for arg in "$@"; do
   esac
 done
 
+if $DESTROY && $BUILD; then
+  echo "Cannot build and destroy in the same command." >&2
+  exit 1
+fi
+if $DESTROY && [[ ${#PROFILES[@]} -gt 0 ]]; then
+  echo "Destroying affects ALL services." >&2
+  exit 1
+fi
+
 # ── execute ──────────────────────────────────────────────────
 if $ALL; then
-  run_compose "$DOWN" "$BUILD" "${ALL_PROFILES[@]}"
+  run_compose "$DOWN" "$BUILD" "$DESTROY" "${ALL_PROFILES[@]}"
 elif [[ ${#PROFILES[@]} -gt 0 ]]; then
-  run_compose "$DOWN" "$BUILD" "${PROFILES[@]}"
+  run_compose "$DOWN" "$BUILD" "$DESTROY" "${PROFILES[@]}"
 else
   interactive_menu "$DOWN" "$BUILD"
 fi
