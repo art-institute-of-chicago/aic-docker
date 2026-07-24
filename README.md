@@ -73,6 +73,9 @@ Use `compose.sh` to start, stop, and manage services via Docker Compose profiles
 
 # List available services
 ./compose.sh --list
+
+# Destroy all services (nuclear option)
+./compose.sh --destroy
 ```
 
 Available services:
@@ -138,7 +141,7 @@ docker compose exec website php artisan cache:clear
 | Check Logs | `docker compose logs -f [service_name]` |
 | Interactive Shell | `docker compose exec [service_name] bash` |
 | Rebuild service | `./compose.sh --build website` |
-| Full Reset | `docker compose down -v` |
+| Full Reset | `./compose.sh --destroy` |
 
 ## Contributing
 
