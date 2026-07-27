@@ -31,3 +31,6 @@ cd /var/www/journeymaker-client
 # fi
 
 echo "Journeymaker Client setup complete!"
+
+# Keep the container running (files are served by the shared nginx container)
+exec tail -f /dev/null
