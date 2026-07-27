@@ -43,6 +43,17 @@ fi
 mkdir -p /run/php
 chown -R sail:sail /run/php
 
+# Install Prince XML
+TEMP_LIBJPEG="$(mktemp)"
+wget http://ftp.us.debian.org/debian/pool/main/libj/libjpeg-turbo/libjpeg62-turbo_2.1.5-2_arm64.deb \
+    --output-document "${TEMP_LIBJPEG}"
+sudo gdebi "${TEMP_LIBJPEG}" --non-interactive
+
+TEMP_PRINCE="$(mktemp)"
+wget https://www.princexml.com/download/prince_15.3-1_ubuntu22.04_arm64.deb \
+    --output-document "${TEMP_PRINCE}"
+sudo gdebi "${TEMP_PRINCE}" --non-interactive
+
 if [ $# -gt 0 ]; then
     exec gosu $WWWUSER "$@"
 else

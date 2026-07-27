@@ -360,7 +360,17 @@ services:
       - '${LOCAL_DATA_SERVICE_ARCHIVES_PATH}:/var/www/data-service-archives'
       - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
     networks:
-      - sail
+      sail:
+        aliases:
+          - www-dev.artic.edu
+          - admin.www-dev.artic.edu
+          - kiosk.www-dev.artic.edu
+          - api-dev.artic.edu
+          - assets-data-dev.artic.edu
+          - enhancer-data-dev.artic.edu
+          - archives-data-dev.artic.edu
+          - artist-enrichment-data-dev.artic.edu
+          - journeymaker-dev.artic.edu
     restart: unless-stopped
 
 networks:

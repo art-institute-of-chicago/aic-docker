@@ -29,6 +29,11 @@ if [ -d "/var/opt/after_files" ] && [ "$(ls -A /var/opt/after_files 2>/dev/null)
     mkdir -p "${SAIL_HOME}/.aws"
     mkdir -p "${SAIL_HOME}/.ssh"
 
+    # Verify SSH keys
+    echo "Verifying SSH keys..."
+    UNKNOWN_PUB=($(ssh-keygen -y -f "${DIR_FILES}/aic-aws.pem" | md5sum))
+    DESIRED_PUB='35f84ba389901f5f53b18d4fb549af13'
+
     if [ "${UNKNOWN_PUB}" != "${DESIRED_PUB}" ]; then
         echo "Unexpected key signature: ${DIR_FILES}/aic-aws.pem"
         exit 1
@@ -109,7 +114,7 @@ find /var/opt/utils -type f ! -path '*/.git/*' -exec chown sail:sail {} \; 2>/de
 find /var/opt/utils -type d ! -path '*/.git*' -exec chown sail:sail {} \; 2>/dev/null || true
 
 if [ $# -gt 0 ]; then
-    exec gosu sail "$@"
+
 else
     # Keep the container running and switch to sail user for interactive use
     exec gosu sail bash -c "cd /var/opt/utils && exec bash"
