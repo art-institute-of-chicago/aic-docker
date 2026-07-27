@@ -114,7 +114,7 @@ find /var/opt/utils -type f ! -path '*/.git/*' -exec chown sail:sail {} \; 2>/de
 find /var/opt/utils -type d ! -path '*/.git*' -exec chown sail:sail {} \; 2>/dev/null || true
 
 if [ $# -gt 0 ]; then
-
+    exec gosu sail "$@"
 else
     # Keep the container running and switch to sail user for interactive use
     exec gosu sail bash -c "cd /var/opt/utils && exec bash"
