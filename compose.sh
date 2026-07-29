@@ -15,6 +15,7 @@ ALL_PROFILES=(
   data-enhancer
   journeymaker-client
   data-service-artist-enrichment
+  data-hub-foundation
 )
 
 SERVICE_DESC=(
@@ -27,6 +28,7 @@ SERVICE_DESC=(
   "Data enhancement service"
   "JourneyMaker frontend"
   "Artist enrichment service"
+  "Data hub foundation"
 )
 
 # ── helpers ──────────────────────────────────────────────────
