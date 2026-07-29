@@ -172,7 +172,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:
-      - '9009:9007'
+      - '9009:9009'
     expose:
       - "9000"
       - "80"
@@ -244,6 +244,29 @@ services:
       WWWUSER: '${WWWUSER}'
     volumes:
       - '${LOCAL_JOURNEYMAKER_CLIENT_PATH}:/var/www/journeymaker-client'
+    networks:
+      - sail
+
+  data-hub-foundation:
+    profiles:
+      - data-hub-foundation
+    build:
+      context: .
+      dockerfile: Dockerfile.data-hub-foundation
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-hub-foundation/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9010:9010'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+    volumes:
+      - '${LOCAL_DATA_HUB_FOUNDATION_PATH}:/var/www/data-hub-foundation'
     networks:
       - sail
 
