@@ -8,6 +8,8 @@ echo "Setting up Data Hub Foundation environment..."
 find /var/www/data-hub-foundation -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
 find /var/www/data-hub-foundation -type d ! -name ".git" -exec chown sail:sail {} \;
 
+git config --global --add safe.directory /var/www/data-hub-foundation
+
 # Change to the Laravel application directory
 cd /var/www/data-hub-foundation
 
