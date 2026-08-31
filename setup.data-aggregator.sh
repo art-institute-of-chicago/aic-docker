@@ -6,13 +6,13 @@ echo "Setting up Data Aggregator environment..."
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
-until mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "root" -ppassword -D "${DB_DATABASE}" -e "SELECT 1" > /dev/null 2>&1; do
+until mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword -D "${SETUP_DB_DATABASE}" -e "SELECT 1" > /dev/null 2>&1; do
     echo "Waiting for MySQL.."
     sleep 2
 done
 
 echo "Adding database privileges..."
-  mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "root" -ppassword -e "
+  mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword -e "
   GRANT ALL PRIVILEGES ON \`data-aggregator\`.* TO 'sail'@'%';
   GRANT ALL PRIVILEGES ON \`data-enhancer\`.* TO 'sail'@'%';
   FLUSH PRIVILEGES;
@@ -54,7 +54,7 @@ if [ -d "$DUMPS_DIR" ]; then
         echo "Found database dump: $(basename "$LATEST_DUMP")"
         echo "Importing database dump..."
         # Import the dump directly using mysql command
-        mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "root" -ppassword "${DB_DATABASE}" < "$LATEST_DUMP"
+        mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword "${SETUP_DB_DATABASE}" < "$LATEST_DUMP"
         echo "Database dump imported successfully!"
     else
         echo "No data_aggregator dump found"
