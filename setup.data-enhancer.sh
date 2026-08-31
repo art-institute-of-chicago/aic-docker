@@ -20,8 +20,8 @@ echo "Adding database privileges..."
 echo "Database privileges added!"
 
 # Set proper ownership first (as root) - excluding .git directory
-find /var/www/data-enhancer -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-enhancer -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-enhancer \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-enhancer \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 chown -R sail:sail /run/php
 
 # Fix specific Laravel directories that need write permissions

@@ -11,8 +11,8 @@ done
 
 echo "PostgreSQL is ready!"
 
-find /var/www/data-service-archives -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-service-archives -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-service-archives \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-service-archives \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 chown -R sail:sail /run/php
 
 chown -R sail:sail /var/www/data-service-archives/storage || true

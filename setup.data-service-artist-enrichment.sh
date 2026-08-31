@@ -4,8 +4,8 @@ set -e
 echo "Setting up Data Service Artist Enrichment..."
 
 # Fix permissions
-find /var/www/data-service-artist-enrichment -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-service-artist-enrichment -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-service-artist-enrichment \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-service-artist-enrichment \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 
 chown -R sail:sail /var/www/data-service-artist-enrichment/storage 2>/dev/null || true
 chown -R sail:sail /var/www/data-service-artist-enrichment/bootstrap/cache 2>/dev/null || true

@@ -5,8 +5,8 @@ set -e
 echo "Setting up Data Hub Foundation environment..."
 
 # Set proper ownership first (as root) - excluding .git directory
-find /var/www/data-hub-foundation -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-hub-foundation -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-hub-foundation \( -name ".git" -o -name "node_modules" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-hub-foundation \( -name ".git" -o -name "node_modules" \) -prune -o -type d -exec chown sail:sail {} +
 
 git config --global --add safe.directory /var/www/data-hub-foundation
 
