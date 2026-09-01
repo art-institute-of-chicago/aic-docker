@@ -77,9 +77,11 @@ services:
       SETUP_DB_HOST: '${DA_DB_HOST}'
       SETUP_DB_PORT: '${DA_DB_PORT}'
       SETUP_DB_DATABASE: '${DA_DB_DATABASE}'
+      SSH_AUTH_SOCK: /run/host-services/ssh-auth.sock
     volumes:
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+      - '/run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock'
     networks:
       - sail
     depends_on:
