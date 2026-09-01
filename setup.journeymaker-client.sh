@@ -5,8 +5,8 @@ set -e
 echo "Setting up Journeymaker Client environment..."
 
 # Set proper ownership first (as root) - excluding .git directory
-find /var/www/journeymaker-client -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/journeymaker-client -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/journeymaker-client \( -name ".git" -o -name "node_modules" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/journeymaker-client \( -name ".git" -o -name "node_modules" \) -prune -o -type d -exec chown sail:sail {} +
 
 # Change to the Laravel application directory
 cd /var/www/journeymaker-client

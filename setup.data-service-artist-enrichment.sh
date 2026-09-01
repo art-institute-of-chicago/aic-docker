@@ -4,8 +4,8 @@ set -e
 echo "Setting up Data Service Artist Enrichment..."
 
 # Fix permissions
-find /var/www/data-service-artist-enrichment -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-service-artist-enrichment -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-service-artist-enrichment \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-service-artist-enrichment \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 
 chown -R sail:sail /var/www/data-service-artist-enrichment/storage 2>/dev/null || true
 chown -R sail:sail /var/www/data-service-artist-enrichment/bootstrap/cache 2>/dev/null || true
@@ -14,7 +14,7 @@ cd /var/www/data-service-artist-enrichment
 
 # Wait for PostgreSQL to be ready
 echo "Waiting for PostgreSQL to be ready..."
-until PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -p "${DB_PORT}" -U "${DB_USERNAME}" -d "${DB_DATABASE}" -c "SELECT 1" > /dev/null 2>&1; do
+until PGPASSWORD="${SETUP_DB_PASSWORD}" psql -h "${SETUP_DB_HOST}" -p "${SETUP_DB_PORT}" -U "${SETUP_DB_USERNAME}" -d "${SETUP_DB_DATABASE}" -c "SELECT 1" > /dev/null 2>&1; do
     echo "Waiting for PostgreSQL.."
     sleep 2
 done

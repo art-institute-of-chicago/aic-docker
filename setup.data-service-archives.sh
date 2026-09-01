@@ -4,15 +4,15 @@ set -e
 echo "Setting up Data Service Archives environment..."
 
 echo "Waiting for PostgreSQL to be ready..."
-until PGPASSWORD="${DB_PASSWORD}" psql -h "${DB_HOST}" -p "${DB_PORT}" -U "${DB_USERNAME}" -d "${DB_DATABASE}" -c "SELECT 1" > /dev/null 2>&1; do
+until PGPASSWORD="${SETUP_DB_PASSWORD}" psql -h "${SETUP_DB_HOST}" -p "${SETUP_DB_PORT}" -U "${SETUP_DB_USERNAME}" -d "${SETUP_DB_DATABASE}" -c "SELECT 1" > /dev/null 2>&1; do
     echo "Waiting for PostgreSQL.."
     sleep 2
 done
 
 echo "PostgreSQL is ready!"
 
-find /var/www/data-service-archives -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-service-archives -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-service-archives \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-service-archives \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 chown -R sail:sail /run/php
 
 chown -R sail:sail /var/www/data-service-archives/storage || true

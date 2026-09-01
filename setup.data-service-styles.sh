@@ -12,8 +12,8 @@ if [ ! -f "storage/app/database.sqlite" ]; then
 fi
 
 # Set proper ownership first (as root) - excluding .git directory
-find /var/www/data-service-styles -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/data-service-styles -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/data-service-styles \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/data-service-styles \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 chown -R sail:sail /run/php
 
 # Fix specific Laravel directories that need write permissions
