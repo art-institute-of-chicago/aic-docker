@@ -94,7 +94,7 @@ COPY setup.data-aggregator.sh /usr/local/bin/setup.data-aggregator.sh
 RUN chmod +x /usr/local/bin/setup.data-aggregator.sh
 
 # Install emacs for the old guys
-RUN apt-get update && apt-get install -y emacs sudo time
+RUN apt-get update && apt-get install -y emacs sudo time rsync
 
 EXPOSE 9000 80
 
