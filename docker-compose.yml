@@ -46,7 +46,7 @@ services:
       WWWUSER: '${WWWUSER}'
     volumes:
       - '${LOCAL_UTILS_PATH}:/var/opt/utils'
-      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files'  # Mount credentials
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files' # Mount credentials
     networks:
       - sail
     depends_on:
@@ -245,6 +245,37 @@ services:
       - '${LOCAL_DATA_HUB_FOUNDATION_PATH}:/var/www/data-hub-foundation'
     networks:
       - sail
+
+  mobile-admin:
+    profiles:
+      - mobile-admin
+    build:
+      context: .
+      dockerfile: Dockerfile.mobile-admin
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-mobile-admin/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9011:9011'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      DB_CONNECTION: '${MOBILE_ADMIN_DB_CONNECTION}'
+      DB_HOST: '${MOBILE_ADMIN_DB_HOST}'
+      DB_PORT: '${MOBILE_ADMIN_DB_PORT}'
+      DB_DATABASE: '${MOBILE_ADMIN_DB_DATABASE}'
+      DB_USERNAME: '${MOBILE_ADMIN_DB_USERNAME}'
+      DB_PASSWORD: '${MOBILE_ADMIN_DB_PASSWORD}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_STYLES_PATH}:/var/www/mobile-admin'
+    networks:
+      - sail
+    depends_on:
+      - mysql
 
   mysql:
     image: 'mysql/mysql-server:8.0'
