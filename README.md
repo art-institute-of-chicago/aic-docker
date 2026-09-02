@@ -8,6 +8,7 @@ This repo contains all the necessary configurations and scripts to get our publi
 ## Local Development Setup
 
 This guide provides a generic framework for setting up a Docker-based development environment for our projects. It is designed to be modular, allowing you to install and run only the projects you need.
+
 1. Prerequisites
 
 Install Docker Desktop from [here](https://docs.docker.com/desktop/) (or Docker Engine for Linux). Mac users can use Homebrew:
@@ -132,6 +133,7 @@ docker compose exec website php artisan cache:clear
 ```
 
 7. Useful Commands Reference
+
 | Action | Command |
 | --- | --- |
 | Start services (menu) | `./compose.sh` |
@@ -142,6 +144,40 @@ docker compose exec website php artisan cache:clear
 | Interactive Shell | `docker compose exec [service_name] bash` |
 | Rebuild service | `./compose.sh --build website` |
 | Full Reset | `./compose.sh --destroy` |
+
+## Quality of life shortcuts
+
+To help speed up you interactions with your Docker instances, you can add some shortcuts to your environment.
+
+```
+alias sail-up="~/Documents/aic-docker/compose.sh"
+alias sail-down="~/Documents/aic-docker/compose.sh --down"
+```
+
+These will alias the most commonly used commands to be accessed globally. Now when you're developing you can `sail-down website; sail-up --build website` to rebuild a specific instance with you latest changes.
+
+```
+# Main sail function for executing commands in containers
+function sail() {
+    instance="$(basename "$PWD")"
+    shift
+
+    # Validate instance
+    case "$instance" in
+        website|utils|data-aggregator|data-service-assets|data-service-styles|data-service-archives|data-enhancer|journeymaker-client|data-service-artist-enrichment|data-hub-foundation)
+            ;;
+        *)
+            echo "Error: Unknown instance '$instance'"
+            echo "Available instances: website, utils, data-aggregator, data-service-assets, data-service-styles, data-service-archives, data-enhancer, journeymaker-client, data-service-artist-enrichment, data-hub-foundation"
+            return 1
+            ;;
+    esac
+    docker compose --project-directory "$SAIL_DOCKER_DIR" --env-file "$SAIL_ENV_FILE" --profile "$instance" exec -t -i "$instance" "${@:-/bin/bash}"
+}
+```
+
+This will create a globally accessible `sail` command that will let you pass in additional commands to Docker. It will take your current working folder and use that as the instance name, and if you don't pass any additional commands it will default to `bash`. So from your working directoy you can simply type `sail` to SSH into your the project's instance.
+
 
 ## Contributing
 
