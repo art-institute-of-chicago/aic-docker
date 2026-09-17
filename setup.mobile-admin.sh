@@ -13,6 +13,7 @@ done
 
 echo "Adding database privileges..."
   mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword -e "
+  CREATE DATABASE IF NOT EXISTS \`mobile-admin\`;
   GRANT ALL PRIVILEGES ON \`mobile-admin\`.* TO 'sail'@'%';
   FLUSH PRIVILEGES;
   SHOW GRANTS FOR 'sail'@'%';
