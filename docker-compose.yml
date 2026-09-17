@@ -387,6 +387,7 @@ services:
       - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
       - '${LOCAL_DATA_SERVICE_ARCHIVES_PATH}:/var/www/data-service-archives'
       - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
+      - '${LOCAL_MOBILE_ADMIN_PATH}:/var/www/mobile-admin'
     networks:
       sail:
         aliases:

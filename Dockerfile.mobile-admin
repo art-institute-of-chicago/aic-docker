@@ -30,7 +30,7 @@ RUN apt-get update \
         php8.2-msgpack php8.2-igbinary php8.2-redis php8.2-swoole \
         php8.2-memcached php8.2-pcov php8.2-xdebug \
         php8.2-fpm \
-        php8.5-gmp \
+        php8.2-gmp \
     && curl -sLS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer \
     && curl -fsSL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash - \
     && apt-get install -y nodejs \
@@ -72,6 +72,17 @@ pidfile=/var/run/supervisord.pid
 [program:php-fpm]
 command=/usr/sbin/php-fpm8.2 -F
 user=root
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+autostart=true
+autorestart=true
+
+[program:laravel-server]
+command=php artisan serve --host=0.0.0.0 --port=80
+directory=/var/www/mobile-admin
+user=sail
 stdout_logfile=/dev/stdout
 stdout_logfile_maxbytes=0
 stderr_logfile=/dev/stderr
