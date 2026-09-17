@@ -32,6 +32,10 @@ chown -R sail:sail /var/www/mobile-admin/bootstrap/cache || true
 # Change to the Laravel application directory
 cd /var/www/mobile-admin
 
+# Clear caches
+gosu sail php artisan config:clear
+gosu sail php artisan route:clear
+
 # Install Composer dependencies if they don't exist
 if [ ! -d "vendor" ]; then
     echo "Installing Composer dependencies..."
