@@ -399,6 +399,7 @@ services:
           - archives-data-dev.artic.edu
           - artist-enrichment-data-dev.artic.edu
           - journeymaker-dev.artic.edu
+          - mobile-admin-dev.artic.edu
     restart: unless-stopped
 
 networks:
