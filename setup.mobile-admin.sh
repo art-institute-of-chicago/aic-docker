@@ -6,7 +6,7 @@ echo "Setting up Mobile Admin environment..."
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
-until mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword -D "${SETUP_DB_DATABASE}" -e "SELECT 1" > /dev/null 2>&1; do
+until mysqladmin ping -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" --silent; do
     echo "Waiting for MySQL.."
     sleep 2
 done
