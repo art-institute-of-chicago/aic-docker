@@ -6,13 +6,13 @@ echo "Setting up Mobile Admin environment..."
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
-until mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "root" -p "${DB_PASSWORD}" -D "${DB_DATABASE}" -e "SELECT 1" > /dev/null 2>&1; do
+until mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword -D "${SETUP_DB_DATABASE}" -e "SELECT 1" > /dev/null 2>&1; do
     echo "Waiting for MySQL.."
     sleep 2
 done
 
 echo "Adding database privileges..."
-  mysql -h "${DB_HOST}" -P "${DB_PORT}" -u "root" -ppassword -e "
+  mysql -h "${SETUP_DB_HOST}" -P "${SETUP_DB_PORT}" -u "root" -ppassword -e "
   GRANT ALL PRIVILEGES ON \`mobile-admin\`.* TO 'sail'@'%';
   FLUSH PRIVILEGES;
   SHOW GRANTS FOR 'sail'@'%';
@@ -20,8 +20,8 @@ echo "Adding database privileges..."
 echo "Database privileges added!"
 
 # Set proper ownership first (as root) - excluding .git directory
-find /var/www/mobile-admin -type d -name ".git" -prune -o -type f -exec chown sail:sail {} \;
-find /var/www/mobile-admin -type d ! -name ".git" -exec chown sail:sail {} \;
+find /var/www/mobile-admin \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type f -exec chown sail:sail {} +
+find /var/www/mobile-admin \( -name ".git" -o -name "node_modules" -o -name "storage" \) -prune -o -type d -exec chown sail:sail {} +
 chown -R sail:sail /run/php
 
 # Fix specific Laravel directories that need write permissions
