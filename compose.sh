@@ -10,6 +10,7 @@ ALL_PROFILES=(
   utils
   data-aggregator
   data-service-assets
+  data-service-collections
   data-service-styles
   data-service-archives
   data-enhancer
@@ -24,6 +25,7 @@ SERVICE_DESC=(
   "Utility scripts + Ansible"
   "Data aggregation pipeline"
   "Assets microservice"
+  "Collections microservice"
   "Styles microservice"
   "Archives microservice"
   "Data enhancement service"
