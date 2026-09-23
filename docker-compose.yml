@@ -146,6 +146,35 @@ services:
     depends_on:
       - mysql
 
+  data-service-events:
+    profiles:
+      - data-service-events
+    build:
+      context: .
+      dockerfile: Dockerfile.data-service-events
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-data-service-events/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9013:9013'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      SETUP_DB_HOST: '${DS_EVENTS_DB_HOST}'
+      SETUP_DB_PORT: '${DS_EVENTS_DB_PORT}'
+      SETUP_DB_DATABASE: '${DS_EVENTS_DB_DATABASE}'
+    volumes:
+      - '${LOCAL_DATA_SERVICE_EVENTS_PATH}:/var/www/data-service-events'
+      - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+
   data-service-styles:
     profiles:
       - data-service-styles
@@ -412,6 +441,7 @@ services:
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_DATA_SERVICE_ASSETS_PATH}:/var/www/data-service-assets'
       - '${LOCAL_DATA_SERVICE_COLLECTIONS_PATH}:/var/www/data-service-collections'
+      - '${LOCAL_DATA_SERVICE_EVENTS_PATH}:/var/www/data-service-events'
       - '${LOCAL_DATA_SERVICE_STYLES_PATH}:/var/www/data-service-styles'
       - '${LOCAL_JOURNEYMAKER_CLIENT_PATH}:/var/www/journeymaker-client'
       - '${LOCAL_DATA_ENHANCER_PATH}:/var/www/data-enhancer'
@@ -427,6 +457,7 @@ services:
           - api-dev.artic.edu
           - assets-data-dev.artic.edu
           - collections-data-dev.artic.edu
+          - events-data-dev.artic.edu
           - enhancer-data-dev.artic.edu
           - archives-data-dev.artic.edu
           - artist-enrichment-data-dev.artic.edu
