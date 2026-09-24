@@ -61,7 +61,7 @@ RUN echo "max_execution_time = 300" >> /etc/php/${PHP_VERSION}/fpm/php.ini
 RUN mkdir -p /run/php && chown -R sail:sail /run/php
 
 # Create supervisord config for PHP-FPM AND Laravel server
-RUN cat > /etc/supervisor/conf.d/supervisord.conf << 'SUPERVISOR_EOF'
+RUN cat > /etc/supervisor/conf.d/supervisord.conf << SUPERVISOR_EOF
 [supervisord]
 nodaemon=true
 user=root
@@ -69,7 +69,7 @@ logfile=/var/log/supervisor/supervisord.log
 pidfile=/var/run/supervisord.pid
 
 [program:php-fpm]
-command=/usr/sbin/php-fpm$PHP_VERSION -F
+command=/usr/sbin/php-fpm${PHP_VERSION} -F
 user=root
 stdout_logfile=/dev/stdout
 stdout_logfile_maxbytes=0
