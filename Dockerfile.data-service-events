@@ -6,7 +6,7 @@ ARG WWWGROUP=1000
 ARG NODE_VERSION=18
 ARG PHP_VERSION=8.1
 
-WORKDIR /var/www/data-service-collections
+WORKDIR /var/www/data-service-events
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
@@ -80,7 +80,7 @@ autorestart=true
 
 [program:laravel-server]
 command=php artisan serve --host=0.0.0.0 --port=80
-directory=/var/www/data-service-collections
+directory=/var/www/data-service-events
 user=sail
 stdout_logfile=/dev/stdout
 stdout_logfile_maxbytes=0
@@ -91,12 +91,12 @@ autorestart=true
 SUPERVISOR_EOF
 
 # Copy the setup script
-COPY setup.data-service-collections.sh /usr/local/bin/setup.data-service-collections.sh
-RUN chmod +x /usr/local/bin/setup.data-service-collections.sh
+COPY setup.data-service-events.sh /usr/local/bin/setup.data-service-events.sh
+RUN chmod +x /usr/local/bin/setup.data-service-events.sh
 
 # Install emacs for the old guys
 RUN apt-get update && apt-get install -y emacs sudo time
 
 EXPOSE 9000 80
 
-ENTRYPOINT ["setup.data-service-collections.sh"]
+ENTRYPOINT ["setup.data-service-events.sh"]

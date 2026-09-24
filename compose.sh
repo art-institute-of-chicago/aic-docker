@@ -11,6 +11,7 @@ ALL_PROFILES=(
   data-aggregator
   data-service-assets
   data-service-collections
+  data-service-events
   data-service-styles
   data-service-archives
   data-enhancer
@@ -26,6 +27,7 @@ SERVICE_DESC=(
   "Data aggregation pipeline"
   "Assets microservice"
   "Collections microservice"
+  "Events microservice"
   "Styles microservice"
   "Archives microservice"
   "Data enhancement service"
