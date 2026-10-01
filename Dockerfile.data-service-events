@@ -4,7 +4,7 @@ LABEL maintainer="AIC"
 
 ARG WWWGROUP=1000
 ARG NODE_VERSION=18
-ARG PHP_VERSION=8.1
+ARG PHP_VERSION=8.5
 
 WORKDIR /var/www/data-service-events
 
