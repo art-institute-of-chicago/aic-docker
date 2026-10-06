@@ -19,6 +19,7 @@ ALL_PROFILES=(
   data-service-artist-enrichment
   data-hub-foundation
   mobile-admin
+  member-lookups
 )
 
 SERVICE_DESC=(
@@ -35,6 +36,7 @@ SERVICE_DESC=(
   "Artist enrichment service"
   "Data hub foundation"
   "Mobile Admin"
+  "Membership lookup"
 )
 
 # ── helpers ──────────────────────────────────────────────────

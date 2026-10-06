@@ -175,6 +175,29 @@ services:
     depends_on:
       - mysql
 
+  member-lookups:
+    profiles:
+      - member-lookups
+    build:
+      context: .
+      dockerfile: Dockerfile.member-lookups
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-member-lookups/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9014:9014'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+    volumes:
+      - '${LOCAL_MEMBER_LOOKUPS_PATH}:/var/www/member-lookups'
+    networks:
+      - sail
+
   data-service-styles:
     profiles:
       - data-service-styles
@@ -448,6 +471,7 @@ services:
       - '${LOCAL_DATA_SERVICE_ARCHIVES_PATH}:/var/www/data-service-archives'
       - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
       - '${LOCAL_MOBILE_ADMIN_PATH}:/var/www/mobile-admin'
+      - '${LOCAL_MEMBER_LOOKUPS_PATH}:/var/www/member-lookups'
     networks:
       sail:
         aliases:
@@ -463,6 +487,7 @@ services:
           - artist-enrichment-data-dev.artic.edu
           - journeymaker-dev.artic.edu
           - mobile-admin-dev.artic.edu
+          - membership-lookup-dev.artic.edu
     restart: unless-stopped
 
 networks:
