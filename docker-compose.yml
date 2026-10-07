@@ -357,6 +357,34 @@ services:
     depends_on:
       - mysql
 
+  journeymaker-admin:
+    profiles:
+      - journeymaker-admin
+    build:
+      context: .
+      dockerfile: Dockerfile.journeymaker-admin
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-journeymaker-admin/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9015:9015'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      SETUP_DB_HOST: '${JOURNEYMAKER_ADMIN_DB_HOST}'
+      SETUP_DB_PORT: '${JOURNEYMAKER_ADMIN_DB_PORT}'
+      SETUP_DB_DATABASE: '${JOURNEYMAKER_ADMIN_DB_DATABASE}'
+    volumes:
+      - '${LOCAL_JOURNEYMAKER_ADMIN_PATH}:/var/www/journeymaker-admin'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+
   mysql:
     image: 'mysql/mysql-server:8.0'
     ports:
@@ -472,6 +500,7 @@ services:
       - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
       - '${LOCAL_MOBILE_ADMIN_PATH}:/var/www/mobile-admin'
       - '${LOCAL_MEMBER_LOOKUPS_PATH}:/var/www/member-lookups'
+      - '${LOCAL_JOURNEYMAKER_ADMIN_PATH}:/var/www/journeymaker-admin'
     networks:
       sail:
         aliases:
@@ -488,6 +517,7 @@ services:
           - journeymaker-dev.artic.edu
           - mobile-admin-dev.artic.edu
           - membership-lookup-dev.artic.edu
+          - journeymaker-admin-dev.artic.edu
     restart: unless-stopped
 
 networks:

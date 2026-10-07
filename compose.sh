@@ -20,6 +20,7 @@ ALL_PROFILES=(
   data-hub-foundation
   mobile-admin
   member-lookups
+  journeymaker-admin
 )
 
 SERVICE_DESC=(
@@ -37,6 +38,7 @@ SERVICE_DESC=(
   "Data hub foundation"
   "Mobile Admin"
   "Membership lookup"
+  "Journeymaker Admin"
 )
 
 # ── helpers ──────────────────────────────────────────────────
