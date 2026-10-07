@@ -5,6 +5,7 @@ CREATE DATABASE IF NOT EXISTS `data-service-assets`;
 CREATE DATABASE IF NOT EXISTS `data-service-collections`;
 CREATE DATABASE IF NOT EXISTS `data-service-events`;
 CREATE DATABASE IF NOT EXISTS `mobile-admin`;
+CREATE DATABASE IF NOT EXISTS `journeymaker-admin`;
 GRANT ALL PRIVILEGES ON `data-aggregator`.* TO '${DA_DB_USERNAME}'@'%';
 GRANT ALL PRIVILEGES ON `testing`.* TO '${DA_DB_USERNAME}'@'%';
 GRANT ALL PRIVILEGES ON `data-enhancer`.* TO '${DATA_ENHANCER_DB_USERNAME}'@'%';
@@ -12,4 +13,5 @@ GRANT ALL PRIVILEGES ON `data-service-assets`.* TO '${DS_ASSETS_DB_USERNAME}'@'%
 GRANT ALL PRIVILEGES ON `data-service-collections`.* TO '${DS_COLLECTIONS_DB_USERNAME}'@'%';
 GRANT ALL PRIVILEGES ON `data-service-events`.* TO '${DS_EVENTS_DB_USERNAME}'@'%';
 GRANT ALL PRIVILEGES ON `mobile-admin`.* TO '${MOBILE_ADMIN_DB_USERNAME}'@'%';
+GRANT ALL PRIVILEGES ON `jouneymaker-admin`.* TO '${JOURNEYMAKER_ADMIN_DB_USERNAME}'@'%';
 FLUSH PRIVILEGES;

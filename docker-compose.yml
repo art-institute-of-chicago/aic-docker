@@ -175,6 +175,29 @@ services:
     depends_on:
       - mysql
 
+  member-lookups:
+    profiles:
+      - member-lookups
+    build:
+      context: .
+      dockerfile: Dockerfile.member-lookups
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-member-lookups/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9014:9014'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+    volumes:
+      - '${LOCAL_MEMBER_LOOKUPS_PATH}:/var/www/member-lookups'
+    networks:
+      - sail
+
   data-service-styles:
     profiles:
       - data-service-styles
@@ -334,6 +357,34 @@ services:
     depends_on:
       - mysql
 
+  journeymaker-admin:
+    profiles:
+      - journeymaker-admin
+    build:
+      context: .
+      dockerfile: Dockerfile.journeymaker-admin
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: aic-journeymaker-admin/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '9015:9015'
+    expose:
+      - "9000"
+      - "80"
+    environment:
+      WWWUSER: '${WWWUSER}'
+      SETUP_DB_HOST: '${JOURNEYMAKER_ADMIN_DB_HOST}'
+      SETUP_DB_PORT: '${JOURNEYMAKER_ADMIN_DB_PORT}'
+      SETUP_DB_DATABASE: '${JOURNEYMAKER_ADMIN_DB_DATABASE}'
+    volumes:
+      - '${LOCAL_JOURNEYMAKER_ADMIN_PATH}:/var/www/journeymaker-admin'
+    networks:
+      - sail
+    depends_on:
+      - mysql
+
   mysql:
     image: 'mysql/mysql-server:8.0'
     ports:
@@ -448,6 +499,8 @@ services:
       - '${LOCAL_DATA_SERVICE_ARCHIVES_PATH}:/var/www/data-service-archives'
       - '${LOCAL_DATA_SERVICE_ARTIST_ENRICHMENT_PATH}:/var/www/data-service-artist-enrichment'
       - '${LOCAL_MOBILE_ADMIN_PATH}:/var/www/mobile-admin'
+      - '${LOCAL_MEMBER_LOOKUPS_PATH}:/var/www/member-lookups'
+      - '${LOCAL_JOURNEYMAKER_ADMIN_PATH}:/var/www/journeymaker-admin'
     networks:
       sail:
         aliases:
@@ -463,6 +516,8 @@ services:
           - artist-enrichment-data-dev.artic.edu
           - journeymaker-dev.artic.edu
           - mobile-admin-dev.artic.edu
+          - membership-lookup-dev.artic.edu
+          - journeymaker-admin-dev.artic.edu
     restart: unless-stopped
 
 networks:
