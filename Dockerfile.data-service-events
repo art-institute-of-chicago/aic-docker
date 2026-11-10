@@ -90,6 +90,11 @@ autostart=true
 autorestart=true
 SUPERVISOR_EOF
 
+# Ensure latest git
+RUN apt-add-repository ppa:git-core/ppa -y \
+    && apt-get update \
+    && apt-get install -y git
+
 # Copy the setup script
 COPY setup.data-service-events.sh /usr/local/bin/setup.data-service-events.sh
 RUN chmod +x /usr/local/bin/setup.data-service-events.sh

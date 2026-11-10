@@ -90,6 +90,11 @@ autostart=true
 autorestart=true
 SUPERVISOR_EOF
 
+# Ensure latest git
+RUN apt-add-repository ppa:git-core/ppa -y \
+    && apt-get update \
+    && apt-get install -y git
+
 # Copy the setup script
 COPY setup.data-service-collections.sh /usr/local/bin/setup.data-service-collections.sh
 RUN chmod +x /usr/local/bin/setup.data-service-collections.sh
