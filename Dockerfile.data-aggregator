@@ -44,6 +44,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Install duckdb
+RUN pip install duckdb
+RUN pip install huggingface_hub
+
 # Set up the sail user (same as original)
 RUN groupadd --force -g $WWWGROUP sail
 RUN useradd -ms /bin/bash --no-user-group -g $WWWGROUP -u 1337 sail
