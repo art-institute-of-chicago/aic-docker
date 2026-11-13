@@ -81,6 +81,7 @@ services:
     volumes:
       - '${LOCAL_DATA_AGGREGATOR_PATH}:/var/www/data-aggregator'
       - '${LOCAL_UTILS_PATH}/dumps:/var/opt/dumps'
+      - '${LOCAL_DOCKER_PATH}/after_files:/var/opt/after_files'
       - '/run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock'
     networks:
       - sail
